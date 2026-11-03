@@ -1,0 +1,21 @@
+{
+  "name": "geek-space",
+  "private": true,
+  "version": "0.3.0",
+  "description": "极客空间 Geek Space — 设备信息与硬件监控工作台",
+  "scripts": {
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "tauri": "tauri",
+    "android:init": "tauri android init",
+    "android:build": "tauri android build",
+    "android:dev": "tauri android dev"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2",
+    "playwright": "^1.64.1"
+  }
+}

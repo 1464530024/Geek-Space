@@ -1,0 +1,379 @@
+/* ============================================================
+   极客空间 Geek Space — 设计令牌 Design Tokens
+   ------------------------------------------------------------
+   三层主题，互相正交：
+     data-theme  → 色彩风格（6 套）
+       dark 黑色深色 / light-green 白色+绿色 / cyber 赛博霓虹
+       ember 熔岩橙红 / ice 冰川蓝 / sand 暖沙米色
+     data-style  → 桌面视觉风格（3 套，桌面端专属）
+       geek 机械科技 / minimal 简约线条 / apple 拟物 iOS
+   令牌挂在属性选择器上（而非 :root），使引导页预览卡可局部复用。
+   ============================================================ */
+
+:root {
+  /* —— 字体：展示 / 正文 / 等宽 —— */
+  --font-display: "Chakra Petch", "Rajdhani", "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+  --font-sans: "IBM Plex Sans", "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+  --font-mono: "JetBrains Mono", "Cascadia Mono", "Consolas", ui-monospace, monospace;
+
+  /* —— 字阶：整体上调，保证 1× 缩放下也可清晰辨识 —— */
+  --fs-2xs: 11px;
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-base: 14px;
+  --fs-md: 15px;
+  --fs-lg: 17px;
+  --fs-xl: 21px;
+  --fs-2xl: 28px;
+  --fs-3xl: 36px;
+  --fs-4xl: 48px;
+  --fs-5xl: 64px;
+
+  /* 行高 */
+  --lh-tight: 1.2;
+  --lh-base: 1.6;
+
+  /* —— 间距梯度 —— */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px;
+
+  /* —— 动效 —— */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 160ms;
+  --dur-base: 320ms;
+  --dur-slow: 640ms;
+
+  /* —— 品牌基准色（不随主题变化）—— */
+  --green-400: #2bc97e;
+  --green-600: #14a463;
+  --red-400: #ff4d5e;
+  --red-600: #e0344a;
+
+  /* —— 语义状态色 —— */
+  --st-ok: #2bc97e;
+  --st-warn: #f2a93b;
+  --st-danger: #ef5350;
+  --st-info: #4c9aff;
+
+  /* —— 布局 —— */
+  --sidebar-w: 240px;
+  --topbar-h: 60px;
+  --statusbar-h: 34px;
+  --content-max: 1640px;
+
+  color-scheme: dark;
+}
+
+/* ============================================================
+   色彩风格 1：黑色深色 dark
+   面板明显提亮，层级靠「表面亮度」而非纯黑分层；
+   红色作为辅助强调色，用于关键数值与装饰。
+   ============================================================ */
+[data-theme="dark"] {
+  --c-bg: #0d0f13;
+  --c-bg-2: #12151b;
+  --c-surface: #1a1e26;
+  --c-surface-2: #212630;
+  --c-elevated: #28303b;
+  --c-hover: rgba(240, 243, 247, 0.06);
+  --c-active: rgba(46, 224, 138, 0.14);
+
+  --c-text: #f0f3f7;
+  --c-text-2: #a9b4c2;
+  --c-text-3: #6d7889;
+
+  --c-border: rgba(240, 243, 247, 0.10);
+  --c-border-2: rgba(240, 243, 247, 0.19);
+
+  --c-accent: #2ee08a;
+  --c-accent-hi: #55f0a4;
+  --c-accent-soft: rgba(46, 224, 138, 0.15);
+  --c-accent-text: #05170e;
+  --c-glow: rgba(46, 224, 138, 0.30);
+
+  --c-accent-2: #ff4d5e;
+  --c-accent-2-hi: #ff6b79;
+  --c-accent-2-soft: rgba(255, 77, 94, 0.15);
+
+  --c-track: rgba(240, 243, 247, 0.11);
+  color-scheme: dark;
+}
+
+/* ============================================================
+   色彩风格 2：白色+绿色 light-green
+   ============================================================ */
+[data-theme="light-green"] {
+  --c-bg: #e9efea;
+  --c-bg-2: #dfe8e1;
+  --c-surface: #ffffff;
+  --c-surface-2: #f3f8f4;
+  --c-elevated: #ffffff;
+  --c-hover: rgba(13, 26, 20, 0.055);
+  --c-active: rgba(14, 157, 87, 0.12);
+
+  --c-text: #0c1a13;
+  --c-text-2: #38493f;
+  --c-text-3: #65786e;
+
+  --c-border: rgba(12, 26, 19, 0.16);
+  --c-border-2: rgba(12, 26, 19, 0.30);
+
+  --c-accent: #0b8f4f;
+  --c-accent-hi: #0aa55c;
+  --c-accent-soft: rgba(11, 143, 79, 0.13);
+  --c-accent-text: #ffffff;
+  --c-glow: rgba(11, 143, 79, 0.22);
+
+  --c-accent-2: #d92b3f;
+  --c-accent-2-hi: #c02233;
+  --c-accent-2-soft: rgba(217, 43, 63, 0.12);
+
+  --c-track: rgba(12, 26, 19, 0.14);
+  color-scheme: light;
+}
+
+/* ============================================================
+   色彩风格 3：赛博霓虹 cyber（深紫黑 + 青 / 品红）
+   ============================================================ */
+[data-theme="cyber"] {
+  --c-bg: #0a0a14;
+  --c-bg-2: #10101f;
+  --c-surface: #17172b;
+  --c-surface-2: #1e1e36;
+  --c-elevated: #262645;
+  --c-hover: rgba(200, 200, 255, 0.07);
+  --c-active: rgba(0, 229, 255, 0.14);
+
+  --c-text: #ebebff;
+  --c-text-2: #a6a6d4;
+  --c-text-3: #6f6fa0;
+
+  --c-border: rgba(160, 160, 255, 0.16);
+  --c-border-2: rgba(160, 160, 255, 0.30);
+
+  --c-accent: #00e5ff;
+  --c-accent-hi: #62f3ff;
+  --c-accent-soft: rgba(0, 229, 255, 0.15);
+  --c-accent-text: #04121a;
+  --c-glow: rgba(0, 229, 255, 0.38);
+
+  --c-accent-2: #ff2fb9;
+  --c-accent-2-hi: #ff5fca;
+  --c-accent-2-soft: rgba(255, 47, 185, 0.16);
+
+  --c-track: rgba(160, 160, 255, 0.16);
+  color-scheme: dark;
+}
+
+/* ============================================================
+   色彩风格 4：熔岩橙红 ember（深棕黑 + 橙 / 红）
+   ============================================================ */
+[data-theme="ember"] {
+  --c-bg: #12100e;
+  --c-bg-2: #1a1714;
+  --c-surface: #241f1a;
+  --c-surface-2: #2d2721;
+  --c-elevated: #38302a;
+  --c-hover: rgba(247, 241, 234, 0.06);
+  --c-active: rgba(255, 138, 61, 0.15);
+
+  --c-text: #f8f2ea;
+  --c-text-2: #c3b3a4;
+  --c-text-3: #8a7a6b;
+
+  --c-border: rgba(247, 241, 234, 0.11);
+  --c-border-2: rgba(247, 241, 234, 0.21);
+
+  --c-accent: #ff8a3d;
+  --c-accent-hi: #ffa366;
+  --c-accent-soft: rgba(255, 138, 61, 0.16);
+  --c-accent-text: #1c0d03;
+  --c-glow: rgba(255, 138, 61, 0.34);
+
+  --c-accent-2: #ff3b3b;
+  --c-accent-2-hi: #ff6161;
+  --c-accent-2-soft: rgba(255, 59, 59, 0.16);
+
+  --c-track: rgba(247, 241, 234, 0.12);
+  color-scheme: dark;
+}
+
+/* ============================================================
+   色彩风格 5：冰川蓝 ice（浅冷灰 + 蓝）
+   ============================================================ */
+[data-theme="ice"] {
+  --c-bg: #e8eef6;
+  --c-bg-2: #dce5f0;
+  --c-surface: #ffffff;
+  --c-surface-2: #f2f6fb;
+  --c-elevated: #ffffff;
+  --c-hover: rgba(13, 22, 38, 0.055);
+  --c-active: rgba(22, 104, 220, 0.12);
+
+  --c-text: #0b1524;
+  --c-text-2: #36455c;
+  --c-text-3: #64748c;
+
+  --c-border: rgba(11, 21, 36, 0.16);
+  --c-border-2: rgba(11, 21, 36, 0.30);
+
+  --c-accent: #1668dc;
+  --c-accent-hi: #2b7ceb;
+  --c-accent-soft: rgba(22, 104, 220, 0.13);
+  --c-accent-text: #ffffff;
+  --c-glow: rgba(22, 104, 220, 0.22);
+
+  --c-accent-2: #d92b3f;
+  --c-accent-2-hi: #c02233;
+  --c-accent-2-soft: rgba(217, 43, 63, 0.12);
+
+  --c-track: rgba(11, 21, 36, 0.14);
+  color-scheme: light;
+}
+
+/* ============================================================
+   色彩风格 6：暖沙米色 sand（暖白 + 琥珀 / 砖红）
+   ============================================================ */
+[data-theme="sand"] {
+  --c-bg: #f2ece0;
+  --c-bg-2: #e8e0d0;
+  --c-surface: #fffdf7;
+  --c-surface-2: #f7f2e6;
+  --c-elevated: #fffdf7;
+  --c-hover: rgba(31, 26, 18, 0.055);
+  --c-active: rgba(184, 128, 42, 0.13);
+
+  --c-text: #1c1710;
+  --c-text-2: #4d4436;
+  --c-text-3: #786c58;
+
+  --c-border: rgba(28, 23, 16, 0.16);
+  --c-border-2: rgba(28, 23, 16, 0.30);
+
+  --c-accent: #a86f1f;
+  --c-accent-hi: #bd8228;
+  --c-accent-soft: rgba(168, 111, 31, 0.14);
+  --c-accent-text: #ffffff;
+  --c-glow: rgba(168, 111, 31, 0.22);
+
+  --c-accent-2: #bb3a2c;
+  --c-accent-2-hi: #a5301f;
+  --c-accent-2-soft: rgba(187, 58, 44, 0.13);
+
+  --c-track: rgba(28, 23, 16, 0.14);
+  color-scheme: light;
+}
+
+/* ============================================================
+   视觉风格 1：机械科技 geek
+   金属质感、铆钉、刻度、硬阴影、大写等宽标签。
+   ============================================================ */
+[data-style="geek"] {
+  --radius-xs: 1px;
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 5px;
+  --radius-pill: 2px;
+
+  --shadow-1: 0 1px 0 rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.045);
+  --shadow-2: 0 2px 0 rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --shadow-3: 0 6px 0 rgba(0, 0, 0, 0.5);
+  --panel-blur: 0px;
+  --panel-saturate: 100%;
+
+  --border-w: 1px;
+  --card-pad: 16px;
+  --row-pad-y: 10px;
+
+  --label-font: var(--font-mono);
+  --label-spacing: 0.10em;
+  --label-transform: uppercase;
+  --label-size: var(--fs-2xs);
+
+  --atmosphere: grid;
+  --plate-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 42%);
+  --accent-bar: 3px;
+  --font-weight-strong: 700;
+}
+
+/* ============================================================
+   视觉风格 2：简约线条 minimal
+   无阴影、极细边框、大留白、低装饰、干净的正文字重。
+   ============================================================ */
+[data-style="minimal"] {
+  --radius-xs: 6px;
+  --radius-sm: 9px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 10px;
+
+  --shadow-1: none;
+  --shadow-2: none;
+  --shadow-3: 0 12px 34px rgba(10, 20, 15, 0.08);
+  --panel-blur: 0px;
+  --panel-saturate: 100%;
+
+  --border-w: 1px;
+  --card-pad: 26px;
+  --row-pad-y: 13px;
+
+  --label-font: var(--font-sans);
+  --label-spacing: 0.01em;
+  --label-transform: none;
+  --label-size: var(--fs-xs);
+
+  --atmosphere: none;
+  --plate-gradient: none;
+  --accent-bar: 0px;
+  --font-weight-strong: 600;
+}
+
+/* ============================================================
+   视觉风格 3：拟物 iOS apple
+   毛玻璃、多层柔和阴影、内高光、大圆角、胶囊控件。
+   ============================================================ */
+[data-style="apple"] {
+  --radius-xs: 10px;
+  --radius-sm: 13px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+
+  --shadow-1: 0 1px 2px rgba(8, 16, 12, 0.06), 0 1px 8px rgba(8, 16, 12, 0.05);
+  --shadow-2: 0 6px 22px rgba(8, 16, 12, 0.10), 0 1px 3px rgba(8, 16, 12, 0.07);
+  --shadow-3: 0 22px 56px rgba(8, 16, 12, 0.18), 0 2px 8px rgba(8, 16, 12, 0.08);
+  --panel-blur: 26px;
+  --panel-saturate: 185%;
+
+  --border-w: 1px;
+  --card-pad: 22px;
+  --row-pad-y: 13px;
+
+  --label-font: var(--font-sans);
+  --label-spacing: 0.005em;
+  --label-transform: none;
+  --label-size: var(--fs-2xs);
+
+  --atmosphere: wash;
+  --plate-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 46%);
+  --accent-bar: 0px;
+  --font-weight-strong: 600;
+}
+
+/* 移动端：锁定统一视觉风格（避免桌面三风格造成的颜色污染） */
+@media (max-width: 760px) {
+  :root {
+    --radius-xs: 5px; --radius-sm: 7px; --radius-md: 10px;
+    --radius-lg: 14px; --radius-pill: 8px;
+    --shadow-1: none; --shadow-2: 0 2px 10px rgba(0, 0, 0, 0.14);
+    --shadow-3: 0 14px 34px rgba(0, 0, 0, 0.26);
+    --panel-blur: 0px; --panel-saturate: 100%;
+    --card-pad: 16px; --row-pad-y: 11px;
+    --label-font: var(--font-mono);
+    --label-spacing: 0.07em; --label-transform: uppercase;
+    --label-size: var(--fs-2xs);
+    --accent-bar: 2px;
+    --font-weight-strong: 700;
+  }
+}

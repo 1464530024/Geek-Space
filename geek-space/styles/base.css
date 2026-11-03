@@ -1,0 +1,161 @@
+/* ============================================================
+   极客空间 Geek Space — 基础层
+   重置 / 排版 / 焦点 / 氛围背景 / 降级动效
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  line-height: var(--lh-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-variant-ligatures: none;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  overflow: hidden;
+}
+
+h1, h2, h3, h4, p, figure { margin: 0; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+
+h1 { font-size: var(--fs-xl); font-weight: var(--font-weight-strong); letter-spacing: -0.01em; line-height: var(--lh-tight); }
+h2 { font-size: var(--fs-lg); font-weight: var(--font-weight-strong); line-height: var(--lh-tight); }
+h3 { font-size: var(--fs-md); font-weight: var(--font-weight-strong); line-height: var(--lh-tight); }
+
+a { color: var(--c-accent); text-decoration: none; }
+a:hover { color: var(--c-accent-hi); }
+
+button, input, select, textarea { font: inherit; color: inherit; }
+
+/* —— 等宽数字：所有指标统一 tabular，读数不跳动 —— */
+.num, .metric-value, .mono, td.num, .kbd {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  letter-spacing: -0.01em;
+}
+
+/* —— 键盘焦点可见 —— */
+:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+:focus:not(:focus-visible) { outline: none; }
+
+/* —— 滚动条 —— */
+* { scrollbar-width: thin; scrollbar-color: var(--c-border-2) transparent; }
+*::-webkit-scrollbar { width: 11px; height: 11px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: var(--c-border-2);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb:hover { background: var(--c-text-3); background-clip: content-box; }
+
+/* —— 无障碍 —— */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+[hidden] { display: none !important; }
+
+/* ============================================================
+   氛围层：按视觉风格切换
+   ============================================================ */
+.atmosphere {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 机械科技：工程网格 + 金属拉丝 + 顶光 + 红色刻度点缀 */
+[data-style="geek"] .atmosphere {
+  background-image:
+    repeating-linear-gradient(90deg, var(--c-border) 0 1px, transparent 1px 80px),
+    linear-gradient(var(--c-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--c-border) 1px, transparent 1px),
+    repeating-linear-gradient(115deg, rgba(255,255,255,0.018) 0 2px, transparent 2px 5px),
+    radial-gradient(74rem 30rem at 78% -14%, var(--c-glow), transparent 60%),
+    radial-gradient(48rem 22rem at 6% -8%, var(--c-accent-2-soft), transparent 62%);
+  background-size: 80px 26px, 40px 40px, 40px 40px, auto, 100% 100%, 100% 100%;
+  opacity: 0.62;
+  mask-image: radial-gradient(130% 95% at 50% 0%, #000 28%, transparent 100%);
+}
+
+/* 简约线条：纯净，仅极淡的顶部光晕 */
+[data-style="minimal"] .atmosphere {
+  background-image: radial-gradient(60rem 26rem at 50% -12%, var(--c-hover), transparent 70%);
+  opacity: 0.7;
+}
+
+/* 拟物 iOS：柔和径向色洗 + 顶部高光 */
+[data-style="apple"] .atmosphere {
+  background-image:
+    radial-gradient(58rem 32rem at 12% -10%, var(--c-accent-soft), transparent 60%),
+    radial-gradient(54rem 30rem at 100% 2%, var(--c-accent-2-soft), transparent 58%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.10), transparent 34%);
+  opacity: 0.95;
+}
+
+/* ============================================================
+   入场序列：一次编排好的错峰揭示
+   ============================================================ */
+@keyframes gs-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes gs-fade { from { opacity: 0 } to { opacity: 1 } }
+@keyframes gs-scale-in {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes gs-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+@keyframes gs-sweep {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(300%); }
+}
+@keyframes gs-spin { to { transform: rotate(360deg); } }
+/* 机械风的纵向扫描线 */
+@keyframes gs-scan {
+  0%   { transform: translateY(-120%); opacity: 0; }
+  40%  { opacity: 0.5; }
+  100% { transform: translateY(2600%); opacity: 0; }
+}
+
+.reveal { opacity: 0; }
+.reveal.in {
+  animation: gs-rise var(--dur-base) var(--ease-out) forwards;
+}
+.reveal:nth-child(1) { animation-delay: 0ms; }
+.reveal:nth-child(2) { animation-delay: 70ms; }
+.reveal:nth-child(3) { animation-delay: 140ms; }
+.reveal:nth-child(4) { animation-delay: 210ms; }
+.reveal:nth-child(5) { animation-delay: 280ms; }
+.reveal:nth-child(6) { animation-delay: 350ms; }
+.reveal:nth-child(n+7) { animation-delay: 420ms; }
+
+/* 尊重降级 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal { opacity: 1 !important; }
+}

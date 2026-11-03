@@ -1,0 +1,32 @@
+[source.crates-io]
+replace-with = 'tuna'
+
+[source.tuna]
+registry = "sparse+https://mirrors.tuna.tsinghua.edu.cn/crates.io-index/"
+
+[net]
+git-fetch-with-cli = true
+
+# ------------------------------------------------------------
+# 链接器配置
+# ------------------------------------------------------------
+# Windows GNU 宿主：使用 MSYS2 MinGW-w64 的 gcc
+[target.x86_64-pc-windows-gnu]
+linker = "gcc"
+ar = "ar"
+
+# Android：必须显式指向 NDK 的 clang 包装器。
+# 若缺这一段，绕过 tauri CLI 直接 cargo build 时会回退到 PATH 中的
+# `cc`（本机为 MinGW gcc），其 ld 不认 --eh-frame-hdr 等 Android 参数。
+# API level 需与 tauri.conf / minSdk(24) 对齐。
+[target.aarch64-linux-android]
+linker = "D:/android-ndk-r27c/toolchains/llvm/prebuilt/windows-x86_64/bin/aarch64-linux-android24-clang.cmd"
+
+[target.armv7-linux-androideabi]
+linker = "D:/android-ndk-r27c/toolchains/llvm/prebuilt/windows-x86_64/bin/armv7a-linux-androideabi24-clang.cmd"
+
+[target.i686-linux-android]
+linker = "D:/android-ndk-r27c/toolchains/llvm/prebuilt/windows-x86_64/bin/i686-linux-android24-clang.cmd"
+
+[target.x86_64-linux-android]
+linker = "D:/android-ndk-r27c/toolchains/llvm/prebuilt/windows-x86_64/bin/x86_64-linux-android24-clang.cmd"
