@@ -1,0 +1,25 @@
+# ============================================================
+# 极客空间 Geek Space — Git 属性
+# ------------------------------------------------------------
+# 统一换行符，避免克隆到其它平台后脚本被改坏。
+# Windows 脚本必须保持 CRLF：PowerShell 5.1 解析无 BOM 的 CRLF 更稳。
+# ============================================================
+
+# 默认按文本处理，仓库内统一 LF
+* text=auto eol=lf
+
+# Windows 脚本保留 CRLF
+*.ps1   text eol=crlf
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+
+# 二进制资源（禁止任何换行/编码转换）
+*.exe     binary
+*.apk     binary
+*.dll     binary
+*.png     binary
+*.jpg     binary
+*.ico     binary
+*.icns    binary
+*.keystore binary
+*.jks     binary

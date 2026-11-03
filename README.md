@@ -52,7 +52,7 @@
 │   ├── capabilities/           # Tauri 权限声明
 │   ├── icons/                  # Windows / Android / iOS 全套应用图标
 │   ├── tauri.js                # Gradle 调用 CLI 的转发垫片
-│   ├── geek-space.keystore     # Android 签名密钥备份
+│   ├── geek-space.keystore     # 本地签名密钥（含私钥，已 .gitignore，不随仓库分发）
 │   └── tauri.conf.json
 ├── build-windows.ps1           # 一键出 Windows 安装包
 ├── build-android.ps1           # 一键出 Android APK
@@ -322,4 +322,4 @@ WMI 的 bool 经 JSON 出来是 `true/false`，而 `n_of` 只认 Number/String�
 | Android 采集维度 | 少于桌面端 | 非 root 下拿不到 SMART、GPU 温度；已按可读范围尽力采集 |
 | Android ABI | 仅 arm64-v8a | 如需兼容旧机，改 `build-android.ps1` 的 `$flavor` 为 `Arm` 或 `Universal` |
 | 启停启动项 | 只读展示 | 写 `StartupApproved` 属系统级改动，HKLM 项还需管理员权限，未纳入 |
-| 应用签名 | 自用 keystore（口令 `geekspace2026`） | 上架前请更换并妥善保管密钥 |
+| 应用签名 | 自用 keystore，**不入库** | `build-android.ps1` 首次运行会自动生成本地密钥库（`.gitignore` 已排除 `*.keystore`）。上架前请更换口令，并离线备份私钥 —— 私钥丢失将无法发布同签名更新 |
