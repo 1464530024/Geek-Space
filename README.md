@@ -1,8 +1,82 @@
-# 极客空间 · Geek Space
+<p align="center">
+  <img src="docs/images/logo.png" width="120" alt="极客空间 Geek Space 应用图标" />
+</p>
 
-设备信息与硬件监控工作台。**Windows 桌面端** 与 **Android 移动端** 双端交付，面向搞机玩家个人使用，不含盈利与广告。
+<h1 align="center">极客空间 · Geek Space</h1>
 
-当前版本 **v0.3.0**（本轮重点：修复设备信息采集，让界面显示真实数据）
+<p align="center">
+  <strong>设备信息与硬件监控工作台</strong><br>
+  Windows 桌面端 + Android 移动端 · 个人自用 · 无广告 · 无盈利
+</p>
+
+<p align="center">当前版本 <strong>v0.3.0</strong></p>
+
+---
+
+## 📸 界面预览
+
+> 截图为 `geek-space/index.html` 在浏览器中直接渲染的结果（即「演示模式」，使用内置模拟设备档案）。
+> 打包后的原生应用展示的是**本机真实采集数据**。
+
+### 概览
+
+实时指标条、多指标趋势曲线、整机功耗分解、环形仪表、设备信息与进程占用排行。
+
+<p align="center">
+  <a href="docs/images/dashboard-dark.png"><img src="docs/images/dashboard-dark.png" width="100%" alt="概览页" /></a>
+</p>
+
+### 硬件监控
+
+处理器 / 内存 / 显卡 / 主板 / 显示器 / 存储 / 电池 七个页签。
+
+| 处理器规格 + 32 格核心负载矩阵 | 物理盘 · 分区卷 · 实时吞吐 |
+|:---:|:---:|
+| [![](docs/images/monitor-cpu.png)](docs/images/monitor-cpu.png) | [![](docs/images/monitor-storage.png)](docs/images/monitor-storage.png) |
+
+### 有线连接联动
+
+连接手机后读取设备信息，管理系统应用 / 普通应用（卸载 · 冻结 · 还原，带风险分级），并浏览手机文件。
+
+<p align="center">
+  <a href="docs/images/link-phone.png"><img src="docs/images/link-phone.png" width="100%" alt="手机联动" /></a>
+</p>
+
+### 搞机工具
+
+设备跑分、传感器、启动项与服务、驱动与固件。
+
+| 设备跑分（单核 / 多核 / 图形 / 内存） | 启动项与服务（含来源与启用状态） |
+|:---:|:---:|
+| [![](docs/images/tools-bench.png)](docs/images/tools-bench.png) | [![](docs/images/tools-startup.png)](docs/images/tools-startup.png) |
+
+### 六套配色 × 三种桌面视觉风格
+
+| 机械科技（默认） | 简约线条 | 拟物 iOS |
+|:---:|:---:|:---:|
+| [![](docs/images/dashboard-dark.png)](docs/images/dashboard-dark.png) | [![](docs/images/style-minimal.png)](docs/images/style-minimal.png) | [![](docs/images/style-apple.png)](docs/images/style-apple.png) |
+
+配色可在引导页或「设置」中随时切换，共 **6 套配色 × 3 种桌面风格**自由组合（移动端锁定统一风格，避免颜色污染）：
+
+| 六套配色选择器 | 赛博霓虹效果 |
+|:---:|:---:|
+| [![](docs/images/settings-colors.png)](docs/images/settings-colors.png) | [![](docs/images/theme-cyber.png)](docs/images/theme-cyber.png) |
+
+### 移动端
+
+同一套前端，安卓端自动切换为底部标签栏布局。
+
+| 概览 | 硬件监控 |
+|:---:|:---:|
+| [![](docs/images/mobile-dashboard.png)](docs/images/mobile-dashboard.png) | [![](docs/images/mobile-monitor.png)](docs/images/mobile-monitor.png) |
+
+### 首次引导
+
+首次打开引导选择色彩风格、语言与桌面视觉风格，之后可在「设置」中修改。
+
+<p align="center">
+  <a href="docs/images/onboarding.png"><img src="docs/images/onboarding.png" width="100%" alt="首次引导" /></a>
+</p>
 
 ---
 
@@ -56,7 +130,8 @@
 │   └── tauri.conf.json
 ├── build-windows.ps1           # 一键出 Windows 安装包
 ├── build-android.ps1           # 一键出 Android APK
-└── dist/                       # 构建产物
+├── docs/images/                # README 界面截图与应用图标
+└── dist/                       # 构建产物（安装包 + APK）
 ```
 
 ---
