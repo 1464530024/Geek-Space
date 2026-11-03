@@ -10,8 +10,8 @@
 
 | 平台 | 文件 | 大小 | 说明 |
 |---|---|---|---|
-| Windows | `dist/windows/极客空间-GeekSpace-0.3.0-安装包.exe` | 1.57 MB | NSIS 安装包，当前用户安装，含中英文界面 |
-| Android | `dist/android/极客空间-GeekSpace-0.3.0-arm64-v8a.apk` | 7.17 MB | 已签名 release APK，arm64-v8a，minSdk 24 (Android 7.0+) |
+| Windows | [`极客空间-GeekSpace-0.3.0-安装包.exe`](dist/windows/极客空间-GeekSpace-0.3.0-安装包.exe) | 1.57 MB | NSIS 安装包，当前用户安装，含中英文界面 |
+| Android | [`极客空间-GeekSpace-0.3.0-arm64-v8a.apk`](dist/android/极客空间-GeekSpace-0.3.0-arm64-v8a.apk) | 7.17 MB | 已签名 release APK，arm64-v8a，minSdk 24 (Android 7.0+) |
 
 **安装说明**
 - Windows：运行安装包按向导安装。
