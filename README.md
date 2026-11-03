@@ -128,11 +128,30 @@
 │   ├── tauri.js                # Gradle 调用 CLI 的转发垫片
 │   ├── geek-space.keystore     # 本地签名密钥（含私钥，已 .gitignore，不随仓库分发）
 │   └── tauri.conf.json
+├── tools/                      # 辅助脚本
+│   ├── screenshot.js           # 重生成 README 界面截图（Playwright）
+│   └── optimize-shots.py       # 截图压缩并输出到 docs/images/
 ├── build-windows.ps1           # 一键出 Windows 安装包
 ├── build-android.ps1           # 一键出 Android APK
 ├── docs/images/                # README 界面截图与应用图标
 └── dist/                       # 构建产物（安装包 + APK）
 ```
+
+---
+
+## 重新生成 README 截图
+
+界面改动后，两条命令重新产出 `docs/images/` 下的全部截图：
+
+```bash
+npm install                       # 首次需要（安装 Playwright）
+npm run shots                     # 逐视图截图 → .shots/
+python tools/optimize-shots.py    # 压缩归档 → docs/images/
+```
+
+- 截图由 `geek-space/index.html` 在浏览器中直接渲染（演示模式），使用本机 Edge 内核，不下载 Chromium
+- `node tools/screenshot.js bench` 只重截文件名含 `bench` 的项，便于局部更新
+- 压缩采用 256 色调色板，体积约为原图的 40%，实测无色带（背景光晕与环形仪表渐变均平滑）
 
 ---
 

@@ -9,13 +9,15 @@
     "tauri": "tauri",
     "android:init": "tauri android init",
     "android:build": "tauri android build",
-    "android:dev": "tauri android dev"
+    "android:dev": "tauri android dev",
+    "shots": "node tools/screenshot.js",
+    "shots:optimize": "python tools/optimize-shots.py"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2"
+    "@tauri-apps/cli": "^2",
+    "playwright": "^1.64.1"
   },
   "dependencies": {
-    "@tauri-apps/api": "^2",
-    "playwright": "^1.64.1"
+    "@tauri-apps/api": "^2"
   }
 }
