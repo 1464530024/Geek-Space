@@ -9,7 +9,7 @@
   Windows 桌面端 + Android 移动端 · 个人自用 · 无广告 · 无盈利
 </p>
 
-<p align="center">当前版本 <strong>v0.3.0</strong></p>
+<p align="center">当前版本 <strong>v0.3.1</strong></p>
 
 ---
 
@@ -84,8 +84,8 @@
 
 | 平台 | 文件 | 大小 | 说明 |
 |---|---|---|---|
-| Windows | [`极客空间-GeekSpace-0.3.0-安装包.exe`](dist/windows/极客空间-GeekSpace-0.3.0-安装包.exe) | 1.57 MB | NSIS 安装包，当前用户安装，含中英文界面 |
-| Android | [`极客空间-GeekSpace-0.3.0-arm64-v8a.apk`](dist/android/极客空间-GeekSpace-0.3.0-arm64-v8a.apk) | 7.17 MB | 已签名 release APK，arm64-v8a，minSdk 24 (Android 7.0+) |
+| Windows | [`极客空间-GeekSpace-0.3.1-安装包.exe`](dist/windows/极客空间-GeekSpace-0.3.1-安装包.exe) | 1.59 MB | NSIS 安装包，当前用户安装，含中英文界面 |
+| Android | [`极客空间-GeekSpace-0.3.1-arm64-v8a.apk`](dist/android/极客空间-GeekSpace-0.3.1-arm64-v8a.apk) | 7.28 MB | 已签名 release APK，arm64-v8a，minSdk 24 (Android 7.0+) |
 
 **安装说明**
 - Windows：运行安装包按向导安装。
@@ -333,6 +333,32 @@ NSIS 安装包由 Tauri 自己把该 DLL 打进去（见生成的 `installer.nsi
 
 ---
 
+## v0.3.1 修复：侧边栏点击后卡 2 秒才切换
+
+装到别的机器上出现过「点左侧导航没反应、一两秒后才跳过去」。根因是三层叠加：
+
+### 1. 采集跑在 UI 线程上（主因）
+Tauri 的**同步**命令默认在 WebView 主线程执行，而 `live_snapshot` 每秒被前端调用一次。
+采集一轮的时间就是界面没响应的时间，恰好覆盖点击时机。
+→ 7 个命令全部改为 `async` + `spawn_blocking`，采集彻底离开 UI 线程。
+
+### 2. 每次采集都冷启动一个外部进程
+读显卡实时数据走的是 `powershell.exe -EncodedCommand`，每次都要新建进程；
+慢机加上杀软实时扫描，单次可达 2 秒以上。
+→ 新增 `run_exe()` 直接调用可执行文件，`nvidia-smi` 不再经 shell，实测 **500ms+ → 78ms**。
+
+### 3. 温度传感器同样每秒起一次进程
+装了 LibreHardwareMonitor 的机器，每轮采集还要再起一次外部进程。
+→ LHM 传感器降频到 5 秒一次并缓存，不再跟随实时循环。
+
+### 4. 额外优化
+后台采样线程每 700ms 采集一次写入 `RwLock` 缓存，`get_live()` 只做一次 clone 直接返回（微秒级）；
+前端点击时先点亮导航高亮再渲染内容，点击即刻有反馈。
+
+> ⚠️ 这是 Rust 后端改动，**只替换前端文件不会生效**，必须重装安装包。
+
+---
+
 ## v0.3.0 修复的核心缺陷（上一版界面为什么会显示错数据）
 
 ### 1. PowerShell 包装行的语法错误让**全部 WMI 采集静默失效** ⚠️
@@ -396,7 +422,7 @@ WMI 的 bool 经 JSON 出来是 `true/false`，而 `n_of` 只认 Number/String�
 ## 架构说明（为什么选 Tauri 2）
 
 - **一栈双端**：同一份前端 → Windows `.exe` + Android `.apk`
-- **体积小**：不打包 Chromium，复用系统 WebView，安装包 1.57 MB / APK 7.17 MB
+- **体积小**：不打包 Chromium，复用系统 WebView，安装包 1.59 MB / APK 7.28 MB
 - **Rust 后端**：直接调用 Win32 / WMI / 性能计数器 / NVML，无需 Electron 的 Node 中间层
 - **前端零重写**：现有 HTML/CSS/JS 直接作为 `frontendDist`
 
