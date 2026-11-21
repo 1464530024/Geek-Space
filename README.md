@@ -82,14 +82,18 @@
 
 ## 📦 交付产物
 
+> 最新版直接下载：[**Releases · v0.4.0**](https://github.com/1464530024/Geek-Space/releases/tag/v0.4.0)
+>
+> 仓库内 `dist/` 同时保留当前版本的产物，方便直接取用；历史版本只留在 Releases。
+
 | 平台 | 文件 | 大小 | 说明 |
 |---|---|---|---|
-| Windows | [`极客空间-GeekSpace-0.4.0-安装包.exe`](dist/windows/极客空间-GeekSpace-0.4.0-安装包.exe) | 1.63 MB | NSIS 安装包，当前用户安装，含中英文界面、常驻托盘 |
-| Android | [`极客空间-GeekSpace-0.4.0-arm64-v8a.apk`](dist/android/极客空间-GeekSpace-0.4.0-arm64-v8a.apk) | 7.28 MB | 已签名 release APK，arm64-v8a，minSdk 24 (Android 7.0+) |
+| Windows | [`极客空间-GeekSpace-0.4.0-安装包.exe`](https://github.com/1464530024/Geek-Space/releases/download/v0.4.0/-GeekSpace-0.4.0-.exe) · [仓库内副本](dist/windows/极客空间-GeekSpace-0.4.0-安装包.exe) | 1.63 MB | NSIS 安装包，当前用户安装，含中英文界面、常驻托盘 |
+| Android | [`极客空间-GeekSpace-0.4.0-arm64-v8a.apk`](https://github.com/1464530024/Geek-Space/releases/download/v0.4.0/-GeekSpace-0.4.0-arm64-v8a.apk) · [仓库内副本](dist/android/极客空间-GeekSpace-0.4.0-arm64-v8a.apk) | 7.28 MB | 已签名 release APK，arm64-v8a，minSdk 24 (Android 7.0+) |
 
 **安装说明**
-- Windows：运行安装包按向导安装。
-- Android：允许「安装未知来源应用」后直接安装。若提示签名冲突，请先卸载旧的同包名应用。
+- Windows：运行安装包按向导安装，可直接覆盖旧版；若界面仍是旧版说明后端没换，先卸载再装。
+- Android：允许「安装未知来源应用」后直接安装。签名一致，可覆盖旧版。
 
 以上均需系统已装 WebView2 Runtime（Win10 1803+ / Win11 自带）。
 
