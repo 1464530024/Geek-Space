@@ -1,6 +1,6 @@
 [package]
 name = "geek-space"
-version = "0.3.0"
+version = "0.3.1"
 description = "Geek Space - 设备信息与硬件监控工作台"
 authors = ["Geek Space"]
 edition = "2021"

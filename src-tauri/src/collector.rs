@@ -13,7 +13,7 @@
 use serde::{Deserialize, Serialize};
 #[cfg(windows)]
 use std::process::Command;
-use std::sync::{Mutex, OnceLock};
+use std::sync::{Mutex, OnceLock, RwLock};
 use std::time::Instant;
 
 #[cfg(windows)]
@@ -368,6 +368,26 @@ fn run_ps(script: &str) -> Option<String> {
     }
 }
 
+/// 直接执行外部 exe（不经 PowerShell）。
+/// nvidia-smi 走这条路：PowerShell 冷启动 300ms~2s，而 nvidia-smi 自身只要 60~150ms。
+#[cfg(windows)]
+fn run_exe(program: &str, args: &[&str]) -> Option<String> {
+    let mut cmd = Command::new(program);
+    cmd.args(args)
+        .creation_flags(CREATE_NO_WINDOW)
+        .stdin(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null());
+    let out = cmd.output().ok()?;
+    if !out.status.success() {
+        return None;
+    }
+    let s = String::from_utf8_lossy(&out.stdout).trim().to_string();
+    if s.is_empty() { None } else { Some(s) }
+}
+
+#[cfg(not(windows))]
+fn run_exe(_program: &str, _args: &[&str]) -> Option<String> { None }
+
 /// 执行脚本并把输出解析为 JSON（自动把结果包装成数组）
 ///
 /// 关键点：末尾把 JSON 中的**非 ASCII 字符全部转成 `\uXXXX` 转义**，使
@@ -661,9 +681,21 @@ struct Collector {
     gpu_engine_pct: Option<f64>,
     /// 后台线程采样的显存占用（MB）
     gpu_vram_used_mb: Option<u32>,
+    /// LibreHardwareMonitor 传感器缓存：读一次走一个 PowerShell，
+    /// 不能跟着实时循环每轮跑，这里降频到 5 秒一采
+    lhm_cache: Option<Vec<SensorReading>>,
+    lhm_at: Option<Instant>,
 }
 
 static COLLECTOR: OnceLock<Mutex<Collector>> = OnceLock::new();
+
+/// 实时快照缓存：后台线程按固定节奏采样写入，命令只做一次 clone 就返回。
+/// 这样前端 invoke 的开销是微秒级，永远不会卡住 UI 线程。
+static LIVE_CACHE: OnceLock<RwLock<Option<LiveSnapshot>>> = OnceLock::new();
+
+fn live_cache() -> &'static RwLock<Option<LiveSnapshot>> {
+    LIVE_CACHE.get_or_init(|| RwLock::new(None))
+}
 
 fn cpumodel_clean(full: &str) -> String {
     full.replace("(R)", "")
@@ -1476,16 +1508,18 @@ fn read_lhm() -> Option<Vec<SensorReading>> {
 }
 
 fn nvidia_available() -> bool {
-    run_ps("if (Get-Command nvidia-smi -ErrorAction SilentlyContinue) { 'YES' } else { 'NO' }")
-        .map(|s| s.contains("YES"))
-        .unwrap_or(false)
+    // 直接探测 exe，避免为此启动一次 PowerShell
+    run_exe("nvidia-smi", &["-L"]).is_some()
 }
 
 /// nvidia-smi 静态信息：显存总量 + 市场版驱动号。
 /// WMI 的 AdapterRAM 是 32 位（>4GB 溢出），DriverVersion 是内部号
 /// （30.0.14.7514），用户认的是 475.14 这种市场版本号。
 fn read_nvidia_static() -> Option<NvStatic> {
-    let s = run_ps("$r = & nvidia-smi --query-gpu=memory.total,driver_version --format=csv,noheader,nounits 2>$null; if ($r) { ($r | Select-Object -First 1) }")?;
+    let s = run_exe(
+        "nvidia-smi",
+        &["--query-gpu=memory.total,driver_version", "--format=csv,noheader,nounits"],
+    )?;
     let line = s.lines().next()?;
     let p: Vec<&str> = line.split(',').map(|x| x.trim()).collect();
     if p.len() < 2 {
@@ -1514,7 +1548,13 @@ struct NvLive {
 }
 
 fn read_nvidia() -> Option<NvLive> {
-    let s = run_ps("$r = & nvidia-smi --query-gpu=utilization.gpu,temperature.gpu,clocks.sm,power.draw --format=csv,noheader,nounits 2>$null; if ($r) { ($r | Select-Object -First 1) }")?;
+    let s = run_exe(
+        "nvidia-smi",
+        &[
+            "--query-gpu=utilization.gpu,temperature.gpu,clocks.sm,power.draw",
+            "--format=csv,noheader,nounits",
+        ],
+    )?;
     let line = s.lines().next()?;
     let parts: Vec<&str> = line.split(',').map(|x| x.trim()).collect();
     if parts.len() < 4 {
@@ -1634,8 +1674,17 @@ fn snapshot(c: &mut Collector) -> LiveSnapshot {
     }
 
     if c.lhm_ok {
-        if let Some(sensors) = read_lhm() {
-            for s in &sensors {
+        // 降频：LHM 每次读取都要起一个 PowerShell（数百毫秒），
+        // 跟着 700ms 的实时循环跑等于给 CPU 白送负载。5 秒一采足够。
+        let stale = c.lhm_at.map(|t| t.elapsed().as_secs_f64() > 5.0).unwrap_or(true);
+        if stale {
+            if let Some(s) = read_lhm() {
+                c.lhm_cache = Some(s);
+            }
+            c.lhm_at = Some(Instant::now());
+        }
+        if let Some(sensors) = &c.lhm_cache {
+            for s in sensors {
                 if s.unit == "°C" && !s.name.to_uppercase().contains("GPU") {
                     if s.name.contains("Package") {
                         cpu_temp = s.value;
@@ -1818,10 +1867,37 @@ pub fn init() {
             last_disk_at: now,
             gpu_engine_pct: None,
             gpu_vram_used_mb: None,
+            lhm_cache: None,
+            lhm_at: None,
         })
     });
 
     start_gpu_sampler();
+    start_live_sampler();
+}
+
+/// 实时快照后台采样线程。
+///
+/// 之前前端每秒 invoke 一次 live_snapshot，而 Tauri 的同步命令跑在
+/// WebView 主线程上 —— 采集里任何一次进程创建（nvidia-smi / PowerShell）
+/// 都会把 UI 冻结住，表现就是"点侧边栏一两秒后才切换"。
+/// 现在改成：后台线程固定节奏采样，命令只读缓存，主线程零阻塞。
+fn start_live_sampler() {
+    static SPAWNED: OnceLock<()> = OnceLock::new();
+    SPAWNED.get_or_init(|| {
+        std::thread::spawn(|| loop {
+            if let Some(m) = COLLECTOR.get() {
+                if let Ok(mut g) = m.lock() {
+                    let snap = snapshot(&mut g);
+                    drop(g); // 先释放采集锁再写缓存，避免两个锁同时持有
+                    if let Ok(mut w) = live_cache().write() {
+                        *w = Some(snap);
+                    }
+                }
+            }
+            std::thread::sleep(std::time::Duration::from_millis(700));
+        });
+    });
 }
 
 /// GPU 引擎利用率后台采样。
@@ -1863,10 +1939,22 @@ pub fn get_profile() -> DeviceProfile {
 
 pub fn get_live() -> LiveSnapshot {
     init();
-    match COLLECTOR.get().and_then(|m| m.lock().ok()) {
-        Some(mut g) => snapshot(&mut g),
-        None => LiveSnapshot::default(),
+    // 常态：直接读后台采样缓存，微秒级返回
+    if let Some(s) = live_cache().read().ok().and_then(|g| g.clone()) {
+        return s;
     }
+    // 兜底：缓存尚未就绪（启动瞬间）时现场算一次
+    if let Some(m) = COLLECTOR.get() {
+        if let Ok(mut g) = m.lock() {
+            let s = snapshot(&mut g);
+            drop(g);
+            if let Ok(mut w) = live_cache().write() {
+                *w = Some(s.clone());
+            }
+            return s;
+        }
+    }
+    LiveSnapshot::default()
 }
 
 pub fn get_sensors() -> Vec<SensorReading> {

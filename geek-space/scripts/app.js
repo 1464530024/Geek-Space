@@ -1642,6 +1642,8 @@
   function go(view) {
     if (!VIEWS[view]) return;
     ui.view = view; persistUI();
+    // 先点亮导航，让点击立刻有反馈，再渲染内容
+    updateNavActive();
     $('#content').scrollTop = 0;
     renderAll();
     closeDrawer();
@@ -1714,7 +1716,7 @@
       <span>${esc(t('navsub.monitor').split(' · ')[0])} ${P.cpu.cores}C/${P.cpu.threads}T</span>
       <span>${UI.uptime(L.uptimeSec)}</span>
       <span class="${window.Monitor.native ? 'tnum' : 'tnum dim'}">${esc(src)}</span>
-      <span class="tnum">v0.3.0</span>`;
+      <span class="tnum">v0.3.1</span>`;
   }
 
   function tickStatus() { updateStatusbar(); }

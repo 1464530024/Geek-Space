@@ -14,8 +14,14 @@ src-tauri/gen/
 .shots/
 .smoke/
 .tools/
+.xhs/
 *.log
 *.tmp
+
+# ---------- 会话数据与发布素材（不入库）----------
+.workbuddy/
+docs/xhs/
+tools/xhs-cards.js
 
 # ---------- 编辑器 / 系统 ----------
 .vscode/

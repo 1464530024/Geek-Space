@@ -14,39 +14,62 @@ use collector::{
     DeviceProfile, DriverItem, LiveSnapshot, ProcessInfo, SensorReading, StartupItem,
 };
 
+// ============================================================
+// 所有命令一律 async + spawn_blocking
+// ------------------------------------------------------------
+// Tauri 的**同步**命令会在 WebView 主线程上执行，而我们的采集里有
+// WMI / PowerShell / nvidia-smi 这类几百毫秒到数秒的阻塞调用 ——
+// 一旦跑在主线程，用户点侧边栏就会出现"卡一两秒才切换"。
+// 改成 async 后命令落到独立线程池，UI 永远不被采集拖住。
+// ============================================================
+
 #[tauri::command]
-fn device_profile() -> DeviceProfile {
-    collector::get_profile()
+async fn device_profile() -> DeviceProfile {
+    tauri::async_runtime::spawn_blocking(collector::get_profile)
+        .await
+        .unwrap_or_default()
 }
 
 #[tauri::command]
-fn live_snapshot() -> LiveSnapshot {
-    collector::get_live()
+async fn live_snapshot() -> LiveSnapshot {
+    tauri::async_runtime::spawn_blocking(collector::get_live)
+        .await
+        .unwrap_or_default()
 }
 
 #[tauri::command]
-fn sensor_list() -> Vec<SensorReading> {
-    collector::get_sensors()
+async fn sensor_list() -> Vec<SensorReading> {
+    tauri::async_runtime::spawn_blocking(collector::get_sensors)
+        .await
+        .unwrap_or_default()
 }
 
 #[tauri::command]
-fn startup_items() -> Vec<StartupItem> {
-    collector::get_startup_items()
+async fn startup_items() -> Vec<StartupItem> {
+    tauri::async_runtime::spawn_blocking(collector::get_startup_items)
+        .await
+        .unwrap_or_default()
 }
 
 #[tauri::command]
-fn driver_list() -> Vec<DriverItem> {
-    collector::get_drivers()
+async fn driver_list() -> Vec<DriverItem> {
+    tauri::async_runtime::spawn_blocking(collector::get_drivers)
+        .await
+        .unwrap_or_default()
 }
 
 #[tauri::command]
-fn top_processes() -> Vec<ProcessInfo> {
-    collector::get_top_processes()
+async fn top_processes() -> Vec<ProcessInfo> {
+    tauri::async_runtime::spawn_blocking(collector::get_top_processes)
+        .await
+        .unwrap_or_default()
 }
 
 #[tauri::command]
-fn capabilities() -> serde_json::Value {
-    collector::capabilities()
+async fn capabilities() -> serde_json::Value {
+    tauri::async_runtime::spawn_blocking(collector::capabilities)
+        .await
+        .unwrap_or(serde_json::Value::Null)
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

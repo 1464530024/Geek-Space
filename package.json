@@ -1,7 +1,7 @@
 {
   "name": "geek-space",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "极客空间 Geek Space — 设备信息与硬件监控工作台",
   "scripts": {
     "dev": "tauri dev",
