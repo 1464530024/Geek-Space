@@ -39,6 +39,15 @@
     sensors() { return safeInvoke('sensor_list'); },
     startup() { return safeInvoke('startup_items'); },
     drivers() { return safeInvoke('driver_list'); },
-    processes() { return safeInvoke('top_processes'); }
+    processes() { return safeInvoke('top_processes'); },
+    /** 关闭窗口时是否缩到托盘常驻（仅桌面端有效，移动端为空操作） */
+    setCloseToTray(on) {
+      if (!call) return null;
+      try { return call('set_close_to_tray', { on: !!on }); } catch (e) { return null; }
+    },
+    showMainWindow() {
+      if (!call) return null;
+      try { return call('show_main_window'); } catch (e) { return null; }
+    }
   };
 })();

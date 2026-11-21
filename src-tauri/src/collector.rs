@@ -1957,6 +1957,15 @@ pub fn get_live() -> LiveSnapshot {
     LiveSnapshot::default()
 }
 
+/// 只读缓存，不做任何采集。
+///
+/// 托盘悬浮提示每 1.5 秒刷新一次，如果走 `get_live()` 会在缓存未就绪时
+/// 现场触发一次完整采集（WMI + 进程枚举），和后台采样线程抢锁。
+/// 托盘只需要"手上已有的数据"，拿不到就显示"采集中"。
+pub fn peek_live() -> Option<LiveSnapshot> {
+    live_cache().read().ok().and_then(|g| g.clone())
+}
+
 pub fn get_sensors() -> Vec<SensorReading> {
     init();
     let lhm_ok = COLLECTOR

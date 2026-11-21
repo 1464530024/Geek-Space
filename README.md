@@ -9,7 +9,7 @@
   Windows 桌面端 + Android 移动端 · 个人自用 · 无广告 · 无盈利
 </p>
 
-<p align="center">当前版本 <strong>v0.3.1</strong></p>
+<p align="center">当前版本 <strong>v0.4.0</strong></p>
 
 ---
 
@@ -84,8 +84,8 @@
 
 | 平台 | 文件 | 大小 | 说明 |
 |---|---|---|---|
-| Windows | [`极客空间-GeekSpace-0.3.1-安装包.exe`](dist/windows/极客空间-GeekSpace-0.3.1-安装包.exe) | 1.59 MB | NSIS 安装包，当前用户安装，含中英文界面 |
-| Android | [`极客空间-GeekSpace-0.3.1-arm64-v8a.apk`](dist/android/极客空间-GeekSpace-0.3.1-arm64-v8a.apk) | 7.28 MB | 已签名 release APK，arm64-v8a，minSdk 24 (Android 7.0+) |
+| Windows | [`极客空间-GeekSpace-0.4.0-安装包.exe`](dist/windows/极客空间-GeekSpace-0.4.0-安装包.exe) | 1.63 MB | NSIS 安装包，当前用户安装，含中英文界面、常驻托盘 |
+| Android | [`极客空间-GeekSpace-0.4.0-arm64-v8a.apk`](dist/android/极客空间-GeekSpace-0.4.0-arm64-v8a.apk) | 7.28 MB | 已签名 release APK，arm64-v8a，minSdk 24 (Android 7.0+) |
 
 **安装说明**
 - Windows：运行安装包按向导安装。
@@ -225,6 +225,27 @@ python tools/optimize-shots.py    # 压缩归档 → docs/images/
 首次引导页、6 套配色、3 套桌面风格、中英文切换、温度单位 °C/°F、恢复默认。
 左上角 logo、引导页 logo、设置页关于 logo 均与应用图标同源。
 
+### 5. 常驻系统托盘（v0.4.0 新增）
+点右上角 × 不再退出，程序缩到任务栏右侧通知区域继续运行；鼠标悬停即显示五项实时简讯：
+
+```
+极客空间 · Geek Space
+CPU 23% · 48°C
+内存 12.4G · 39%
+GPU 7%
+网速 ↓1.2M/s ↑86K/s
+```
+
+- **左键**点图标 = 显示 / 隐藏主窗口
+- **右键**菜单 = 显示主窗口 / 隐藏窗口 / 退出（真正退出只能从这里）
+- 提示文本 1.5 秒刷新一次，读的是后台采样缓存，不会因为托盘而多跑一次采集
+- 采集器未就绪时显示「正在采集…」，不会白屏或显示 0
+- 设置 → 监控 → 「常驻系统托盘」可关掉该行为（关掉后点 × 直接退出）
+
+> Windows 11 默认把新图标放进「隐藏的图标」溢出区。要一直显示：
+> 设置 → 个性化 → 任务栏 → 系统托盘图标 → 把 Geek Space 设为「开」，
+> 或直接把图标从溢出区拖到任务栏上。
+
 ---
 
 ## 本机真实采集样例（用于对照）
@@ -333,6 +354,21 @@ NSIS 安装包由 Tauri 自己把该 DLL 打进去（见生成的 `installer.nsi
 
 ---
 
+## v0.4.0 新增：常驻系统托盘
+
+关闭窗口不再退出，程序留在任务栏右侧；悬停托盘图标即可看 CPU 使用率 / 温度、内存占用、GPU 使用率、上下行网速。
+实现见上文「功能实现 5」，技术要点：
+
+- 托盘用 `tauri` 的 `tray-icon` 特性，**特性只在 `cfg(not(any(android, ios)))` 下开启**，
+  否则 Android 构建会被拉进仅桌面可用的 `tray-icon` 而编译失败；
+- `WindowEvent::CloseRequested` 里 `prevent_close()` + `hide()` 实现关窗驻留，
+  开关状态放在 `AtomicBool`，点托盘菜单「退出」时先置 `false` 再 `app.exit(0)`，避免被自己拦下；
+- 提示文本由**独立线程每 1.5 秒**读一次采样缓存后 `run_on_main_thread` 更新
+  （`Shell_NotifyIcon` 统一走主线程），且只读缓存不触发采集，不会重演 v0.3.1 的卡顿；
+- Windows `szTip` 上限 128 字符，文案统一在 120 字符处截断加省略号。
+
+---
+
 ## v0.3.1 修复：侧边栏点击后卡 2 秒才切换
 
 装到别的机器上出现过「点左侧导航没反应、一两秒后才跳过去」。根因是三层叠加：
@@ -422,7 +458,7 @@ WMI 的 bool 经 JSON 出来是 `true/false`，而 `n_of` 只认 Number/String�
 ## 架构说明（为什么选 Tauri 2）
 
 - **一栈双端**：同一份前端 → Windows `.exe` + Android `.apk`
-- **体积小**：不打包 Chromium，复用系统 WebView，安装包 1.59 MB / APK 7.28 MB
+- **体积小**：不打包 Chromium，复用系统 WebView，安装包 1.63 MB / APK 7.28 MB
 - **Rust 后端**：直接调用 Win32 / WMI / 性能计数器 / NVML，无需 Electron 的 Node 中间层
 - **前端零重写**：现有 HTML/CSS/JS 直接作为 `frontendDist`
 

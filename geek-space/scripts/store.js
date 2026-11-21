@@ -16,7 +16,8 @@
     refresh: 1000,          // 500 | 1000 | 2000 | 0
     unit: 'c',              // c | f
     showPower: true,
-    showFan: true
+    showFan: true,
+    tray: true              // 关闭窗口时缩到系统托盘常驻（仅桌面端）
   };
 
   let state = Object.assign({}, DEFAULTS);

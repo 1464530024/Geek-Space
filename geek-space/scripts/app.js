@@ -20,6 +20,9 @@
   const showOr = (v, fallback) => (v === null || v === undefined || String(v).trim() === '' || v === '—')
     ? (fallback || '—') : v;
 
+  /* 版本号统一在这里改，避免关于页与状态栏各写一处、升级时漏改 */
+  const APP_VERSION = '0.4.0';
+
   const NAV = [
     { id: 'dashboard', icon: 'overview', key: 'nav.dashboard' },
     { id: 'monitor', icon: 'cpu', key: 'nav.monitor' },
@@ -1305,6 +1308,11 @@
           <div><div class="set-t">${esc(t('settings.showFan'))}</div><div class="set-d">${esc(t('dashboard.cpuFan'))}</div></div>
           <div class="set-c"><button class="switch" role="switch" aria-checked="${S.showFan}" data-sw="showFan" aria-label="${esc(t('settings.showFan'))}"></button></div>
         </div>
+        ${isMobile ? '' : `
+        <div class="set-row" style="border-bottom:none">
+          <div><div class="set-t">${esc(t('settings.tray'))}</div><div class="set-d">${esc(t('settings.traySub'))}</div></div>
+          <div class="set-c"><button class="switch" role="switch" aria-checked="${S.tray !== false}" data-sw="tray" aria-label="${esc(t('settings.tray'))}"></button></div>
+        </div>`}
       </section>
 
       <section class="card">
@@ -1326,7 +1334,7 @@
                style="width:64px;height:64px;border-radius:var(--radius-md);display:block;box-shadow:var(--shadow-1)">
           <div>
             <div style="font-size:var(--fs-lg);font-weight:var(--font-weight-strong)">极客空间 · Geek Space</div>
-            <div class="tnum dim" style="font-size:var(--fs-xs)">v0.2.0 · ${esc(t('settings.buildChannel'))}: win-x64 / android-arm64</div>
+            <div class="tnum dim" style="font-size:var(--fs-xs)">v${APP_VERSION} · ${esc(t('settings.buildChannel'))}: win-x64 / android-arm64</div>
           </div>
         </div>
         <p class="muted" style="line-height:1.7;margin-bottom:16px">${esc(t('settings.aboutDesc'))}</p>
@@ -1579,6 +1587,10 @@
       const v = !Store.state[k];
       b.setAttribute('aria-checked', String(v));
       Store.set({ [k]: v }, 'switch');
+      // 托盘常驻是原生行为，需要即时通知 Rust 侧
+      if (k === 'tray' && window.NativeBridge && window.NativeBridge.available) {
+        window.NativeBridge.setCloseToTray(v);
+      }
     }));
     /* 设置：导出 / 重置 / 引导 */
     const be = $('#btnExport'); if (be) be.addEventListener('click', exportReport);
@@ -1716,7 +1728,7 @@
       <span>${esc(t('navsub.monitor').split(' · ')[0])} ${P.cpu.cores}C/${P.cpu.threads}T</span>
       <span>${UI.uptime(L.uptimeSec)}</span>
       <span class="${window.Monitor.native ? 'tnum' : 'tnum dim'}">${esc(src)}</span>
-      <span class="tnum">v0.3.1</span>`;
+      <span class="tnum">v${APP_VERSION}</span>`;
   }
 
   function tickStatus() { updateStatusbar(); }
@@ -1974,6 +1986,8 @@
       if (!window.NativeBridge || !window.NativeBridge.available) return;
       const ok = await window.NativeBridge.init();
       if (!ok) return;
+      // 把「关窗缩到托盘」的偏好同步给 Rust（移动端为空操作）
+      window.NativeBridge.setCloseToTray(Store.state.tray !== false);
       const [prof, sens, startup, drivers] = await Promise.all([
         window.NativeBridge.profile(),
         window.NativeBridge.sensors(),
